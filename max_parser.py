@@ -8,8 +8,13 @@ Created on Wed Apr 27 22:13:05 2022
 import pandas as pd
 
 
-path_excel_max_file = "example.xlsx"
-path_output_excel_file = "output_max.xlsx"
+path_excel_input_list = [
+    "example1.xlsx",
+    "example2.xlsx",
+    "example3.xlsx"
+    ]
+path_excel_max_file = "example-input.xlsx"
+path_output_excel_file = "max.xlsx"
 month = 4
 
 xls = pd.ExcelFile(path_excel_max_file)
@@ -34,13 +39,25 @@ def parse_sheet_by_index(xls, sheet_index, month_to_filter=0):
 
 
 def parse_whole_excel(path_filename, month_to_filter):
-    xls_result = pd.ExcelFile(path_excel_max_file)
+    xls_result = pd.ExcelFile(path_filename)
     df_result = pd.DataFrame()
-    for i in range(4):
+    for i in range(len(xls.sheet_names)):
         df_result = pd.concat([df_result, parse_sheet_by_index(xls_result, i, month_to_filter=month)])
     return df_result
 
-parse_whole_excel(path_excel_max_file, month)
+def read_excel_list_info_single_df(path_list):
+    dflist = []
+    for filename in path_list:
+        # df_result = parse_whole_excel(filename, month)
+        # dflist.append(df_result)
+        dflist.append(parse_whole_excel(filename, month))
+        
+    df_result = pd.concat(dflist)
+    df_result.sort_values(by='תאריך עסקה')
+    return df_result
+# result_df = parse_whole_excel(path_excel_max_file, month)
+result_df = read_excel_list_info_single_df(path_excel_input_list)
+display(result_df)
 
 
-# df.to_excel('test.xlsx')
+result_df.to_excel(path_output_excel_file)
