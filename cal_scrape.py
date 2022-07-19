@@ -23,7 +23,7 @@ uasd=""
 pasd=""
 download_dir = "output_raw/"
 
-month=4
+month=7
 year=2022
 
 next_month_date = datetime.datetime(month=month, year=year, day=1) + datetime.timedelta(days=32)
@@ -50,10 +50,12 @@ driver.get("https://www.cal-online.co.il/")
 time.sleep(5)
 driver.find_elements_by_class_name("logindesktop")[0].click()
 time.sleep(3)
-iframe_login = driver.find_element_by_xpath('//iframe[@src="https://connect.cal-online.co.il/index.html"]')
+# iframe_login = driver.find_element_by_xpath('//iframe[@src="https://connect.cal-online.co.il/index.html"]')
+iframe_login = driver.find_element_by_xpath('//iframe[@src="/calconnect/index.html"]')
 time.sleep(2)
 driver.switch_to.frame(iframe_login)
-driver.find_elements_by_xpath('//a[@href="/regular-login"]')[0].click()
+# driver.find_elements_by_xpath('//a[@href="/regular-login"]')[0].click()
+driver.find_elements_by_xpath('//a[@href="/calconnect/regular-login"]')[0].click()
 time.sleep(5)
 driver.find_element_by_id('mat-input-2').send_keys(uasd)
 time.sleep(1)
@@ -65,8 +67,26 @@ time.sleep(10)
 
 
 
+############# Close pop up
+flag_passed_CardDetails = False
+for count in range(20):
+    if not flag_passed_CardDetails:
+        try:
+            driver.find_elements_by_xpath('//img[@onclick="closePopup(\'.loanProposalPopupWrapper\')"]')[0].click()
+            flag_passed_CardDetails = True
+        except:
+            time.sleep(5)
+
 ############# Get cards List
-driver.find_elements_by_xpath('//a[@href="CardDetails.aspx?action=2"]')[0].click()
+flag_passed_CardDetails = False
+for count in range(20):
+    if not flag_passed_CardDetails:
+        try:
+            driver.find_elements_by_xpath('//a[@href="CardDetails.aspx?action=2"]')[0].click()
+            flag_passed_CardDetails = True
+        except:
+            time.sleep(5)
+            
 time.sleep(3)
 driver.find_element_by_id('ctl00_FormAreaNoBorder_FormArea_rdoTransactionDate').click()
 time.sleep(5)
