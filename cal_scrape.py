@@ -21,10 +21,12 @@ from time import sleep
 
 uasd=""
 pasd=""
-download_dir = "output_raw/"
+download_dir = r"\output_raw\\"
 
 month=7
 year=2022
+browser = "chrome"
+# browser = "firefox"
 
 next_month_date = datetime.datetime(month=month, year=year, day=1) + datetime.timedelta(days=32)
 next_month = next_month_date.month
@@ -34,16 +36,28 @@ month_item_in_list = "{0:0>2}".format(month)+str(year)
 next_month_item_in_list = "{0:0>2}".format(next_month)+str(next_month_year)
 
 next_month_date = datetime.datetime(month=month, year=year, day=1) + datetime.timedelta(days=32)
-
-fp = webdriver.FirefoxProfile()
-fp.set_preference("browser.download.folderList",2)
-fp.set_preference("browser.download.manager.showWhenStarting",False)
-fp.set_preference("browser.download.dir", download_dir)
-#fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text")
-fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/plain")
-
-driver = webdriver.Firefox(firefox_profile=fp)
+if browser == "firefox":
+    fp = webdriver.FirefoxProfile()
+    fp.set_preference("browser.download.folderList",2)
+    fp.set_preference("browser.download.manager.showWhenStarting",False)
+    fp.set_preference("browser.download.dir", download_dir)
+    #fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text")
+    fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/plain")
+    
+    driver = webdriver.Firefox(firefox_profile=fp)
 # driver.maximize_window()
+
+if browser == "chrome":
+    options = webdriver.ChromeOptions()
+    options.add_argument("--start-maximized")
+    prefs = {"profile.default_content_settings.popups": 0,
+             # "download.default_directory": os.getcwd() + r"\temp_files_from_site\\", # IMPORTANT - ENDING SLASH V IMPORTANT
+             "download.default_directory": os.getcwd() + download_dir, # IMPORTANT - ENDING SLASH V IMPORTANT
+             "directory_upgrade": True}
+    options.add_experimental_option("prefs", prefs)
+    # driver = webdriver.Chrome(executable_path='./', chrome_options=options)
+    driver = webdriver.Chrome(chrome_options=options)
+
 
 ###################### LOGIN
 driver.get("https://www.cal-online.co.il/")
@@ -113,12 +127,14 @@ time.sleep(1)
 
 for index_card in range(len(list_cards)):
     driver.find_element_by_id("ctl00_ContentTop_cboCardList_categoryList_lblCollapse").click()
+    time.sleep(1)
     driver.find_element_by_id("ctl00_ContentTop_cboCardList_categoryList_pnlMain"
                               ).find_elements_by_class_name('categoryItem')[index_card].click()
     
 
     
     
+    time.sleep(1)
     ##select currect month
     driver.find_element_by_id('ctl00_FormAreaNoBorder_FormArea_ctlDateScopeStart_ctlMonthYearList_Button').click()
     time.sleep(1)
@@ -141,6 +157,7 @@ for index_card in range(len(list_cards)):
     driver.find_element_by_id('ctl00_FormAreaNoBorder_FormArea_ctlDateScopeEnd_ctlMonthYearList_OptionList'
                               ).find_elements_by_xpath('li[@value="' + next_month_item_in_list + '"]')[0].click()
     
+    time.sleep(1)
     ##select 1st day in the dropdown list in the end date
     driver.find_element_by_id('ctl00_FormAreaNoBorder_FormArea_ctlDateScopeEnd_ctlDaysList_Button').click()
     time.sleep(1)
@@ -157,6 +174,7 @@ for index_card in range(len(list_cards)):
     try:
         driver.find_element_by_id('ctl00_FormAreaNoBorder_FormArea_ctlMainToolBar_btnExcel').click()
         print('Downloaded xls for card {}'.format(list_cards[index_card]))
+        time.sleep(1)
     except:
         try:
             if driver.find_elements_by_xpath("//span[@class='vld_summary']")[0].text == 'לא נמצאו נתונים':
