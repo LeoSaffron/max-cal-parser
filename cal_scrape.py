@@ -18,6 +18,10 @@ import os
 import os.path
 from time import sleep
 
+import random
+
+
+
 
 uasd=""
 pasd=""
@@ -27,6 +31,28 @@ month=7
 year=2022
 browser = "chrome"
 # browser = "firefox"
+
+
+def generateRandomString(length):
+    random_string = ''
+    for _ in range(length):
+        # Considering only upper and lowercase letters
+        random_integer = random.randint(97, 97 + 26 - 1)
+        flip_bit = random.randint(0, 1)
+        # Convert to lowercase if the flip bit is on
+        random_integer = random_integer - 32 if flip_bit == 1 else random_integer
+        # Keep appending random characters using chr(x)
+        random_string += (chr(random_integer))
+    return random_string
+
+os.path.join(r"\output_raw", generateRandomString(24)) 
+download_dir + generateRandomString(24) + r'\\'
+temp_folder_name =generateRandomString(24)
+os.mkdir(os.path.join("output_raw", "a" + temp_folder_name)) 
+path_temp_download_folder = r"\output_raw\a" + temp_folder_name + r"\\"
+download_dir = path_temp_download_folder
+# os.mkdir(r"\output_raw\a" + generateRandomString(24)) 
+
 
 next_month_date = datetime.datetime(month=month, year=year, day=1) + datetime.timedelta(days=32)
 next_month = next_month_date.month
