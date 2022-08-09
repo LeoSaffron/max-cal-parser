@@ -45,12 +45,39 @@ def generateRandomString(length):
         random_string += (chr(random_integer))
     return random_string
 
-os.path.join(r"\output_raw", generateRandomString(24)) 
-download_dir + generateRandomString(24) + r'\\'
-temp_folder_name =generateRandomString(24)
-os.mkdir(os.path.join("output_raw", "a" + temp_folder_name)) 
-path_temp_download_folder = r"\output_raw\a" + temp_folder_name + r"\\"
-download_dir = path_temp_download_folder
+def getNewTempFolderDownloadPath():
+    os.path.join(r"\output_raw", generateRandomString(24)) 
+    download_dir + generateRandomString(24) + r'\\'
+    temp_folder_name =generateRandomString(24)
+    os.mkdir(os.path.join("output_raw", "a" + temp_folder_name)) 
+    path_temp_download_folder = r"\output_raw\a" + temp_folder_name + r"\\"
+    return path_temp_download_folder
+
+def openNewBrowserWindow(browser):
+    if browser == "firefox":
+        fp = webdriver.FirefoxProfile()
+        fp.set_preference("browser.download.folderList",2)
+        fp.set_preference("browser.download.manager.showWhenStarting",False)
+        fp.set_preference("browser.download.dir", download_dir)
+        #fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text")
+        fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/plain")
+        
+        driver = webdriver.Firefox(firefox_profile=fp)
+    # driver.maximize_window()
+    
+    if browser == "chrome":
+        options = webdriver.ChromeOptions()
+        options.add_argument("--start-maximized")
+        prefs = {"profile.default_content_settings.popups": 0,
+                 # "download.default_directory": os.getcwd() + r"\temp_files_from_site\\", # IMPORTANT - ENDING SLASH V IMPORTANT
+                 "download.default_directory": os.getcwd() + download_dir, # IMPORTANT - ENDING SLASH V IMPORTANT
+                 "directory_upgrade": True}
+        options.add_experimental_option("prefs", prefs)
+        # driver = webdriver.Chrome(executable_path='./', chrome_options=options)
+        driver = webdriver.Chrome(chrome_options=options)
+    return driver
+
+download_dir = getNewTempFolderDownloadPath()
 # os.mkdir(r"\output_raw\a" + generateRandomString(24)) 
 
 
@@ -62,28 +89,8 @@ month_item_in_list = "{0:0>2}".format(month)+str(year)
 next_month_item_in_list = "{0:0>2}".format(next_month)+str(next_month_year)
 
 next_month_date = datetime.datetime(month=month, year=year, day=1) + datetime.timedelta(days=32)
-if browser == "firefox":
-    fp = webdriver.FirefoxProfile()
-    fp.set_preference("browser.download.folderList",2)
-    fp.set_preference("browser.download.manager.showWhenStarting",False)
-    fp.set_preference("browser.download.dir", download_dir)
-    #fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text")
-    fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/plain")
-    
-    driver = webdriver.Firefox(firefox_profile=fp)
-# driver.maximize_window()
 
-if browser == "chrome":
-    options = webdriver.ChromeOptions()
-    options.add_argument("--start-maximized")
-    prefs = {"profile.default_content_settings.popups": 0,
-             # "download.default_directory": os.getcwd() + r"\temp_files_from_site\\", # IMPORTANT - ENDING SLASH V IMPORTANT
-             "download.default_directory": os.getcwd() + download_dir, # IMPORTANT - ENDING SLASH V IMPORTANT
-             "directory_upgrade": True}
-    options.add_experimental_option("prefs", prefs)
-    # driver = webdriver.Chrome(executable_path='./', chrome_options=options)
-    driver = webdriver.Chrome(chrome_options=options)
-
+driver = openNewBrowserWindow(browser)
 
 ###################### LOGIN
 driver.get("https://www.cal-online.co.il/")
