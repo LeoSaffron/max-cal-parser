@@ -7,16 +7,16 @@ Created on Mon May  2 00:24:27 2022
 
 from selenium import webdriver
 import time
-from binance.client import Client
+# from binance.client import Client
 import re
-from glob import glob
-import pickle
+# from glob import glob
+# import pickle
 import datetime
-from datetime import datetime
-import datetime
+# from datetime import datetime
+# import datetime
 import os
 import os.path
-from time import sleep
+# from time import sleep
 
 import random
 
