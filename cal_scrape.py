@@ -6,6 +6,9 @@ Created on Mon May  2 00:24:27 2022
 """
 
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 import re
 import datetime
@@ -16,12 +19,12 @@ import random
 
 
 
-# uasd=""
-# pasd=""
+uasd=""
+pasd=""
 
-# month=7
-# year=2022
-# browser = "chrome"
+month=12
+year=2022
+browser = "chrome"
 # # browser = "firefox"
 
 
@@ -107,115 +110,64 @@ def scrape_files_into_a_temp_folder(month, year, user, passw, browser="chrome"):
     driver.switch_to.default_content()
     time.sleep(10)
     
-    
-    
-    ############# Close pop up
-    flag_passed_CardDetails = False
-    for count in range(20):
-        if not flag_passed_CardDetails:
-            try:
-                driver.find_elements_by_xpath('//img[@onclick="closePopup(\'.loanProposalPopupWrapper\')"]')[0].click()
-                flag_passed_CardDetails = True
-            except:
-                time.sleep(5)
+    ############# Close pop upabout new design
+    try:
+        wait = WebDriverWait(driver, 10)
+        button_temp = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'button[aria-label="סגור חלון"]')))
+        button_temp.click()
+    except:
+        pass
     
     ############# Get cards List
-    flag_passed_CardDetails = False
-    for count in range(20):
-        if not flag_passed_CardDetails:
-            try:
-                driver.find_elements_by_xpath('//a[@href="CardDetails.aspx?action=2"]')[0].click()
-                flag_passed_CardDetails = True
-            except:
-                time.sleep(5)
-                
-    time.sleep(3)
-    driver.find_element_by_id('ctl00_FormAreaNoBorder_FormArea_rdoTransactionDate').click()
-    time.sleep(5)
+    try:
+        wait = WebDriverWait(driver, 10)
+        a_see_cards = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[aria-label="צפייה בכרטיסים שלי - ניווט בתוך האתר"].ng-star-inserted')))
+        a_see_cards.click()
+    except:
+        pass
     
-    driver.find_element_by_id("ctl00_ContentTop_cboCardList_categoryList_lblCollapse").click()
-    time.sleep(1)
+    # Find the element containing the number
+    card_number_element = driver.find_element(By.XPATH, '//span[@class="number"]')
     
-    # driver.find_element_by_id("ctl00_ContentTop_cboCardList_categoryList_pnlMain")
-    
-    list_cards = []
-    
-    list_items_with_card_numbers = driver.find_element_by_id("ctl00_ContentTop_cboCardList_categoryList_pnlMain"
-                              ).find_elements_by_class_name('categoryItem')
-    for text_in_cards_list in list_items_with_card_numbers:
-        list_cards.append(re.findall(r'[0-9]{4}', text_in_cards_list.text)[0])
-    
-    
-    driver.find_element_by_id("ctl00_ContentTop_cboCardList_categoryList_lblCollapse").click()
-    time.sleep(1)
+    # Get the number
+    first_card_number = card_number_element.text
+    card_numbers_list = list(filter(lambda x: re.match(r'\d+', x), [x.text for x in driver.find_elements(By.XPATH, '//span[@class="number"]')]))
     
     
     
-    ############### DOWNLOAD EXCEL FILE PER CARD
     
-    for index_card in range(len(list_cards)):
-        driver.find_element_by_id("ctl00_ContentTop_cboCardList_categoryList_lblCollapse").click()
-        time.sleep(1)
-        driver.find_element_by_id("ctl00_ContentTop_cboCardList_categoryList_pnlMain"
-                                  ).find_elements_by_class_name('categoryItem')[index_card].click()
-        
     
+    try:
+        # Wait for the button element to be clickable
+        wait = WebDriverWait(driver, 10)
+        button_element = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'button.close[title="סגירה"]')))
+        button_element.click()
+    except:
+        pass
+    
+    
+    driver.get("https://digital-web.cal-online.co.il/transactions-search")
+    time.sleep(10)
+    
+    # Wait for the button element to be clickable
+    wait = WebDriverWait(driver, 20)
+    button_element = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'לצפייה בעסקאות')]")))
+    
+    # Click on the button
+    button_element.click()
+    
+    
+    ############### DOWNLOAD EXCEL FILE
+    time.sleep(10)
         
-        
-        time.sleep(1)
-        ##select currect month
-        driver.find_element_by_id('ctl00_FormAreaNoBorder_FormArea_ctlDateScopeStart_ctlMonthYearList_Button').click()
-        time.sleep(1)
-        driver.find_element_by_id('ctl00_FormAreaNoBorder_FormArea_ctlDateScopeStart_ctlMonthYearList_OptionList'
-                                  ).find_elements_by_xpath('li[@value="' + month_item_in_list + '"]')[0].click()
-        time.sleep(1)
-        
-        ##select 1st day in the dropdown list in the start date
-        driver.find_element_by_id('ctl00_FormAreaNoBorder_FormArea_ctlDateScopeStart_ctlDaysList_Button').click()
-        time.sleep(1)
-        driver.find_element_by_id('ctl00_FormAreaNoBorder_FormArea_ctlDateScopeStart_ctlDaysList_OptionList'
-                                  ).find_elements_by_xpath('li[@value="1"]')[0].click()
-        time.sleep(1)
-        
-        
-        
-        ##select next month
-        driver.find_element_by_id('ctl00_FormAreaNoBorder_FormArea_ctlDateScopeEnd_ctlMonthYearList_Button').click()
-        time.sleep(1)
-        driver.find_element_by_id('ctl00_FormAreaNoBorder_FormArea_ctlDateScopeEnd_ctlMonthYearList_OptionList'
-                                  ).find_elements_by_xpath('li[@value="' + next_month_item_in_list + '"]')[0].click()
-        
-        time.sleep(1)
-        ##select 1st day in the dropdown list in the end date
-        driver.find_element_by_id('ctl00_FormAreaNoBorder_FormArea_ctlDateScopeEnd_ctlDaysList_Button').click()
-        time.sleep(1)
-        driver.find_element_by_id('ctl00_FormAreaNoBorder_FormArea_ctlDateScopeEnd_ctlDaysList_OptionList'
-                                  ).find_elements_by_xpath('li[@value="1"]')[0].click()
-        time.sleep(1)
-        
-        
-        driver.find_element_by_id('ctl00_FormAreaNoBorder_FormArea_ctlSubmitRequest').click()
-        time.sleep(10)
-        
-        
-        #click on export to excel button
-        try:
-            driver.find_element_by_id('ctl00_FormAreaNoBorder_FormArea_ctlMainToolBar_btnExcel').click()
-            print('Downloaded xls for card {}'.format(list_cards[index_card]))
-            time.sleep(1)
-        except:
-            try:
-                if driver.find_elements_by_xpath("//span[@class='vld_summary']")[0].text == 'לא נמצאו נתונים':
-                    print('no records for card {}'.format(list_cards[index_card]))
-                else:
-                    print('Some error occured for card {}'.format(list_cards[index_card]))
-                    print('Error on the screen: {}'.format(driver.find_elements_by_xpath("//span[@class='vld_summary']")[0].text))
-            except:
-                print('Some error occured for card {}'.format(list_cards[index_card]))
+    # Wait for the element to be clickable
+    wait = WebDriverWait(driver, 20)
+    element = wait.until(EC.element_to_be_clickable((By.XPATH, "//div[@class='export-area']//span[contains(text(),'יצוא')]")))
+    
+    # Click on the element
+    element.click()
+    
     return download_dir
-            
-                
-
 
 
 
